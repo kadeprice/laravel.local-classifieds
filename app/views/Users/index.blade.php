@@ -1,0 +1,1 @@
+/home/kade/NetBeansProjects/maladlist/app/views/Users/index.blade.php
