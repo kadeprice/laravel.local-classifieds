@@ -1,5 +1,9 @@
-/home/kade/NetBeansProjects/maladlist/app/views/Users/index.blade.php
+<h2>Show Users</h2>
 <br/>
-Show Users
+@foreach($users as $user)
+    <p>
+        {{ $user['fname'] }} {{ $user['lname'] }}
+    </p>
+@endforeach
 <br/>
 {{ App::environment() }}

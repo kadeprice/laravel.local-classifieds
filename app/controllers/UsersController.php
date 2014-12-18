@@ -8,10 +8,14 @@ class UsersController extends \BaseController {
 	 *
 	 * @return Response
 	 */
+    
+        public function __construct(User $user) {
+            $this->user = $user;
+        }
 	public function index()
 	{
-		//
-            return View::make('Users/index');
+            $users = $this->user->all();
+            return View::make('Users.index', ['users' => $users]);
 	}
 
 	/**
