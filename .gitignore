@@ -7,3 +7,4 @@ composer.lock
 Thumbs.db
 /nbproject
 /app/config/local/
+/app/config/database.php
