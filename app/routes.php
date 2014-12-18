@@ -17,3 +17,6 @@ Route::get('/', function()
 });
 
 Route::resource('users', 'UsersController');
+Route::get('test',function(){
+    return "This is awesome";
+});
