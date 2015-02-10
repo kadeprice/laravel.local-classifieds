@@ -26,7 +26,7 @@ class UsersController extends \BaseController {
 	 */
 	public function create()
 	{
-		//
+            return View::make('Users.create');
 	}
 
 	/**
@@ -37,7 +37,32 @@ class UsersController extends \BaseController {
 	 */
 	public function store()
 	{
-		//
+            $input=Input::all();
+            
+            
+            if(!$this->user->isValid($input)) return Redirect::back()->withInput()->withErrors($this->user->messages)->withNotification("Something Happened");
+            $this->user->fill($input);
+            unset($this->user->password_confirmation); //Prevent the attempt of adding this field to the table.
+            $this->user->save();
+            
+            //Add member role
+            $role = Role::whereRole('user')->first();
+            $this->user->assignRole($role);
+            
+            
+//            $user=$this->user->toArray();
+            
+            //Send welcome email
+//            Mail::queue('emails.welcome',$user,function($message) use($user) {
+//                $message->to($user['email'],$user['fname'].$user['lname'])
+//                        ->subject('Welcome to CTI.');
+//            });
+//            
+//            if(Auth::attempt(Input::only('email','password'))){
+//                return Redirect::intended("Dashboard")->with('notification',"Thank you, You have successfully registered.");
+//            }
+            return Redirect::back()->withNotification("Thank you, You have successfully registered.");
+        
 	}
 
 	/**

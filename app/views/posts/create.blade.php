@@ -1,0 +1,1 @@
+/home/kade/NetBeansProjects/maladlist/app/views/posts/create.blade.php
