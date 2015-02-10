@@ -28,7 +28,7 @@ class Application extends Container implements HttpKernelInterface, TerminableIn
 	 *
 	 * @var string
 	 */
-	const VERSION = '4.2.12';
+	const VERSION = '4.2.16';
 
 	/**
 	 * Indicates if the application has "booted".
@@ -746,7 +746,7 @@ class Application extends Container implements HttpKernelInterface, TerminableIn
 		}
 		catch (\Exception $e)
 		{
-			if ($this->runningUnitTests()) throw $e;
+			if ( ! $catch || $this->runningUnitTests()) throw $e;
 
 			return $this['exception']->handleException($e);
 		}

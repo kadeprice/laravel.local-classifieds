@@ -1,3 +1,14 @@
+1.14.0 / 2015-02-06
+===================
+* Added isBirthday()
+* Various refactorings
+* Merged MonthsNoOverflow helpers
+* Added 2nd param to diffForHumans() to remove string modifier text
+* Improved readme for installation
+* Simplified __get method
+* timezone support for method formatLocalized
+* Added helpers secondsSinceMidnight() / secondsUntilEndOfDay()
+
 1.13.0 / 2014-09-25
 ===================
 * Fixed diffInDaysFiltered() bug.
