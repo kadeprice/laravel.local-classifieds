@@ -83,15 +83,23 @@ $daysSinceEpoch = Carbon::createFromTimeStamp(0)->diffInDays();
 <a name="install-composer"/>
 ### With Composer
 
-The easiest way to install Carbon is via [composer](http://getcomposer.org/). Create the following `composer.json` file and run the `php composer.phar install` command to install it.
+The easiest way to install Carbon is via [composer](http://getcomposer.org/). Using the following command:
+
+```
+$ composer require nesbot/carbon
+```
+This will automatically find the latest version and include that one, for example `~1.13`.
+
+I you wish you can create the following `composer.json` file and run the `php composer.phar install` command to install it.
 
 ```json
 {
     "require": {
-        "nesbot/Carbon": "*"
+        "nesbot/carbon": "*"
     }
 }
 ```
+Note: we recommend using a defined version like `~1.13` instead of `*`,
 
 ```php
 <?php
@@ -177,13 +185,13 @@ To accompany `now()`, a few other static instantiation helpers exist to create w
 
 ```php
 $now = Carbon::now();
-echo $now;                               // 2014-09-24 23:55:55
+echo $now;                               // 2015-02-06 00:04:01
 $today = Carbon::today();
-echo $today;                             // 2014-09-24 00:00:00
+echo $today;                             // 2015-02-06 00:00:00
 $tomorrow = Carbon::tomorrow('Europe/London');
-echo $tomorrow;                          // 2014-09-26 00:00:00
+echo $tomorrow;                          // 2015-02-07 00:00:00
 $yesterday = Carbon::yesterday();
-echo $yesterday;                         // 2014-09-23 00:00:00
+echo $yesterday;                         // 2015-02-05 00:00:00
 ```
 
 The next group of static helpers are the `createXXX()` helpers. Most of the static `create` functions allow you to provide as many or as few arguments as you want and will provide default values for all others.  Generally default values are the current date, time or timezone.  Higher values will wrap appropriately but invalid values will throw an `InvalidArgumentException` with an informative message.  The message is obtained from an [DateTime::getLastErrors()](http://php.net/manual/en/datetime.getlasterrors.php) call.
@@ -276,7 +284,7 @@ echo Carbon::parse('now');                             // 2001-05-21 12:00:00
 var_dump(Carbon::hasTestNow());                        // bool(true)
 Carbon::setTestNow();                                  // clear the mock
 var_dump(Carbon::hasTestNow());                        // bool(false)
-echo Carbon::now();                                    // 2014-09-24 23:55:55
+echo Carbon::now();                                    // 2015-02-06 00:04:01
 ```
 
 A more meaning full example:
@@ -380,7 +388,7 @@ var_dump(Carbon::now('America/Vancouver')->local);           // bool(false)
 
 // Indicates if the instance is in the UTC timezone
 var_dump(Carbon::now()->utc);                                // bool(false)
-var_dump(Carbon::now('Europe/London')->utc);                 // bool(false)
+var_dump(Carbon::now('Europe/London')->utc);                 // bool(true)
 var_dump(Carbon::createFromTimestampUTC(0)->utc);            // bool(true)
 
 // Gets the DateTimeZone instance
@@ -560,7 +568,7 @@ echo $dt1->max($dt2);                              // 2014-01-30 00:00:00
 
 // now is the default param
 $dt1 = Carbon::create(2000, 1, 1, 0, 0, 0);
-echo $dt1->max();                                  // 2014-09-24 23:55:55
+echo $dt1->max();                                  // 2015-02-06 00:04:01
 ```
 
 To handle the most used cases there are some simple helper functions that hopefully are obvious from their names.  For the methods that compare to `now()` (ex. isToday()) in some manner the `now()` is created in the same timezone as the instance.
@@ -577,6 +585,11 @@ $dt->isFuture();
 $dt->isPast();
 $dt->isLeapYear();
 $dt->isSameDay(Carbon::now());
+$born = Carbon::createFromDate(1987, 4, 23);
+$noCake = Carbon::createFromDate(2014, 9, 26);
+$yesCake = Carbon::createFromDate(2014, 4, 23);
+var_dump($born->isBirthday($noCake));              // bool(false)  
+var_dump($born->isBirthday($yesCake));             // bool(true)  
 ```
 
 <a name="api-addsub"/>
@@ -662,6 +675,8 @@ echo $dt->diffInMinutes($dt->copy()->addSeconds(59));                  // 0
 echo $dt->diffInMinutes($dt->copy()->addSeconds(60));                  // 1
 echo $dt->diffInMinutes($dt->copy()->addSeconds(119));                 // 1
 echo $dt->diffInMinutes($dt->copy()->addSeconds(120));                 // 2
+
+echo $dt->addSeconds(120)->secondsSinceMidnight();                     // 120
 ```
 
 There is also a special `diffInDaysFiltered()` method to help you filter the difference by days.  For example to count the weekend days between two instances:
@@ -679,6 +694,7 @@ echo $daysForExtraCoding;      // 104
 // diffInYears(), diffInMonths(), diffInWeeks()
 // diffInDays(), diffInWeekdays(), diffInWeekendDays()
 // diffInHours(), diffInMinutes(), diffInSeconds()
+// secondsSinceMidnight(), secondsUntilEndOfDay()
 ```
 
 <a name="api-humandiff"/>
@@ -704,6 +720,8 @@ This method will add a phrase after the difference value relative to the instanc
     * 1 hour after
     * 5 months after
 
+You may also pass `true` as a 2nd parameter to remove the modifiers *ago*, *from now*, etc : `diffForHumans(Carbon $other, true)`
+
 ```php
 // The most typical usage is for comments
 // The instance is the date the comment was created and its being compared to default now()
@@ -719,6 +737,7 @@ echo $dt->diffForHumans($dt->copy()->subMonth());              // 1 month after
 echo Carbon::now()->addSeconds(5)->diffForHumans();            // 5 seconds from now
 
 echo Carbon::now()->subDays(24)->diffForHumans();              // 3 weeks ago
+echo Carbon::now()->subDays(24)->diffForHumans(null, true);    // 3 weeks
 ```
 
 <a name="api-modifiers"/>
