@@ -1,0 +1,5 @@
+suites:
+    main:
+        namespace: Classifieds
+        psr4_prefix: Classifieds
+        src_path: app
