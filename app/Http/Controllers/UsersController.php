@@ -1,9 +1,13 @@
 <?php 
 namespace Classifieds\Http\Controllers;
 use Classifieds\User;
+use Classifieds\Role;
 //use Request;
 use Input;
 use Redirect;
+use Illuminate\Http\Request;
+use Classifieds\Http\Requests\UserSignupRequest;
+
 class UsersController extends Controller {
 
 	/**
@@ -40,19 +44,17 @@ class UsersController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function store()
+	public function store(UserSignupRequest $request)
 	{
-            $input=Input::all();
-            
-//            return $input;
-//            if(!$this->user->isValid($input)) return Redirect::back()->withInput()->withErrors($this->user->messages)->withNotification("Something Happened");
+            $input=$request->all();
+//            $this->validate($request, $this->user->rules);
             $this->user->fill($input);
             unset($this->user->password_confirmation); //Prevent the attempt of adding this field to the table.
             $this->user->save();
             
             //Add member role
-//            $role = Role::whereRole('user')->first();
-//            $this->user->assignRole($role);
+            $role = Role::whereRole('user')->first();
+            $this->user->assignRole($role);
             
             
 //            $user=$this->user->toArray();
@@ -66,7 +68,8 @@ class UsersController extends Controller {
 //            if(Auth::attempt(Input::only('email','password'))){
 //                return Redirect::intended("Dashboard")->with('notification',"Thank you, You have successfully registered.");
 //            }
-            return Redirect::back()->withNotification("Thank you, You have successfully registered.");
+//            return Redirect::back()->withNotification("Thank you, You have successfully registered.");
+                return redirect('users')->withNotification("Thank you, You have successfully registered.");
         
 	}
 

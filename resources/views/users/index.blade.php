@@ -5,5 +5,3 @@
         {{ $user['fname'] }} {{ $user['lname'] }}
     </p>
 @endforeach
-<br/>
-{{ App::environment() }}

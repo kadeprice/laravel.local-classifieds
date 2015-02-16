@@ -1,14 +1,22 @@
-<?php
+<?php namespace Classifieds;
 
-class Role extends \Eloquent {
+use Illuminate\Database\Eloquent\Model;
+
+class Role extends Model {
+
 	protected $fillable = ['role'];
         protected $table = 'roles';
         
+        public function test(){
+            return "TEST";
+        }
+        
         static function getRoles(){
             $roles=Role::all();
-            $role=array();
+            return $roles;
+            $role=[];
             foreach($roles as $r){
-                $role[$r->id]=$r->roles;
+                $role[$r->id]=$r->role;
             }
             return $role;
         }

@@ -30,14 +30,21 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	 * @var array
 	 */
 	protected $hidden = ['password', 'remember_token'];
+        public $rules = [
+            'fname' => 'required|min:2',
+            'lname' => 'required|min:2',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:4|confirmed',
+            'password_confirmation' => 'required'
+        ];
         
          //Relationships
         public function roles(){
-            return $this->belongsToMany('Role')->withTimestamps();            
+            return $this->belongsToMany('\Classifieds\Role');            
         }
         
         public function posts(){
-            return $this->hasMany('Post');
+            return $this->hasMany('\Classifieds\Post');
         }
         
          //Roles
@@ -62,6 +69,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
                 $roleName[]=$role->role;
             }            
             return $roleName;
+        }
+        
+        
+        public function setPasswordAttribute($pass){
+            $this->attributes['password'] = \Illuminate\Support\Facades\Hash::make($pass);
         }
         
 

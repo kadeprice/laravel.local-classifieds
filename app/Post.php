@@ -1,6 +1,8 @@
-<?php
+<?php namespace Classifieds;
 
-class Post extends \Eloquent {
+use Illuminate\Database\Eloquent\Model;
+
+class Post extends Model {
 
 	// Add your validation rules here
 	public static $rules = [
@@ -8,11 +10,13 @@ class Post extends \Eloquent {
 	];
         protected $table = 'posts';
 
+        public function test(){ return "TEST"; }
+        
 	// Don't forget to fill this array
 	protected $fillable = [];
         
         public function user(){
-            return $this->belongsTo('User');
+            return $this->belongsTo('\Classifieds\User');
         }
 
 }

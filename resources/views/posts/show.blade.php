@@ -1,1 +1,2 @@
-/home/kade/NetBeansProjects/maladlist/app/views/posts/show.blade.php
+{{ $post->title }} - {{ $post->user->fname }} <br/>
+{{ $post->body }}<br/>

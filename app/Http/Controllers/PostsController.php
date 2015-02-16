@@ -1,6 +1,9 @@
 <?php
 
-class PostsController extends \BaseController {
+namespace Classifieds\Http\Controllers;
+use Classifieds\Post;
+
+class PostsController extends Controller {
 
 	/**
 	 * Display a listing of posts
@@ -9,9 +12,11 @@ class PostsController extends \BaseController {
 	 */
 	public function index()
 	{
-		$posts = Post::all();
+            $user = \Classifieds\User::find(1);
+            $posts = $user->posts;
+//		$posts = Post::all();
                 
-		return View::make('posts.index', compact('posts'));
+		return view('posts.index', compact('posts'));
 	}
 
 	/**
@@ -53,7 +58,7 @@ class PostsController extends \BaseController {
 	{
 		$post = Post::findOrFail($id);
 
-		return View::make('posts.show', compact('post'));
+		return view('posts.show', compact('post'));
 	}
 
 	/**

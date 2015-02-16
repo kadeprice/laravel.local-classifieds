@@ -552,3 +552,6 @@ footer *{
 .title span{
     font-weight: 900;
 }
+.warning{
+    color:#CD5A48;
+}
