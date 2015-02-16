@@ -12,11 +12,9 @@ class PostsController extends Controller {
 	 */
 	public function index()
 	{
-            $user = \Classifieds\User::find(1);
-            $posts = $user->posts;
-//		$posts = Post::all();
-                
-		return view('posts.index', compact('posts'));
+            $posts = Post::all();
+
+            return view('posts.index', compact('posts'));
 	}
 
 	/**
