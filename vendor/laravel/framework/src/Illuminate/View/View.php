@@ -1,14 +1,16 @@
 <?php namespace Illuminate\View;
 
-use ArrayAccess;
 use Closure;
+use ArrayAccess;
+use BadMethodCallException;
 use Illuminate\Support\MessageBag;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\View\Engines\EngineInterface;
-use Illuminate\Support\Contracts\MessageProviderInterface;
-use Illuminate\Support\Contracts\ArrayableInterface as Arrayable;
-use Illuminate\Support\Contracts\RenderableInterface as Renderable;
+use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Contracts\Support\MessageProvider;
+use Illuminate\Contracts\View\View as ViewContract;
 
-class View implements ArrayAccess, Renderable {
+class View implements ArrayAccess, ViewContract {
 
 	/**
 	 * The view factory instance.
@@ -68,7 +70,7 @@ class View implements ArrayAccess, Renderable {
 	/**
 	 * Get the string contents of the view.
 	 *
-	 * @param  \Closure  $callback
+	 * @param  \Closure|null  $callback
 	 * @return string
 	 */
 	public function render(Closure $callback = null)
@@ -79,7 +81,7 @@ class View implements ArrayAccess, Renderable {
 
 		// Once we have the contents of the view, we will flush the sections if we are
 		// done rendering all views so that there is nothing left hanging over when
-		// anothoer view is rendered in the future by the application developers.
+		// another view gets rendered in the future by the application developer.
 		$this->factory->flushSectionsIfDoneRendering();
 
 		return $response ?: $contents;
@@ -191,12 +193,12 @@ class View implements ArrayAccess, Renderable {
 	/**
 	 * Add validation errors to the view.
 	 *
-	 * @param  \Illuminate\Support\Contracts\MessageProviderInterface|array  $provider
+	 * @param  \Illuminate\Contracts\Support\MessageProvider|array  $provider
 	 * @return $this
 	 */
 	public function withErrors($provider)
 	{
-		if ($provider instanceof MessageProviderInterface)
+		if ($provider instanceof MessageProvider)
 		{
 			$this->with('errors', $provider->getMessageBag());
 		}
@@ -226,6 +228,16 @@ class View implements ArrayAccess, Renderable {
 	public function getEngine()
 	{
 		return $this->engine;
+	}
+
+	/**
+	 * Get the name of the view.
+	 *
+	 * @return string
+	 */
+	public function name()
+	{
+		return $this->getName();
 	}
 
 	/**
@@ -375,7 +387,7 @@ class View implements ArrayAccess, Renderable {
 			return $this->with(snake_case(substr($method, 4)), $parameters[0]);
 		}
 
-		throw new \BadMethodCallException("Method [$method] does not exist on view.");
+		throw new BadMethodCallException("Method [$method] does not exist on view.");
 	}
 
 	/**

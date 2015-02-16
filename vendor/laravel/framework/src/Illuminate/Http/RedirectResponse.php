@@ -1,12 +1,15 @@
 <?php namespace Illuminate\Http;
 
+use BadMethodCallException;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\ViewErrorBag;
 use Symfony\Component\HttpFoundation\Cookie;
 use Illuminate\Session\Store as SessionStore;
-use Illuminate\Support\Contracts\MessageProviderInterface;
+use Illuminate\Contracts\Support\MessageProvider;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\RedirectResponse as BaseRedirectResponse;
 
-class RedirectResponse extends \Symfony\Component\HttpFoundation\RedirectResponse {
+class RedirectResponse extends BaseRedirectResponse {
 
 	/**
 	 * The request instance.
@@ -70,6 +73,22 @@ class RedirectResponse extends \Symfony\Component\HttpFoundation\RedirectRespons
 	}
 
 	/**
+	 * Add multiple cookies to the response.
+	 *
+	 * @param  array  $cookies
+	 * @return $this
+	 */
+	public function withCookies(array $cookies)
+	{
+		foreach ($cookies as $cookie)
+		{
+			$this->headers->setCookie($cookie);
+		}
+
+		return $this;
+	}
+
+	/**
 	 * Flash an array of input to the session.
 	 *
 	 * @param  array  $input
@@ -79,7 +98,10 @@ class RedirectResponse extends \Symfony\Component\HttpFoundation\RedirectRespons
 	{
 		$input = $input ?: $this->request->input();
 
-		$this->session->flashInput($input);
+		$this->session->flashInput(array_filter($input, function ($value)
+		{
+			return ! $value instanceof UploadedFile;
+		}));
 
 		return $this;
 	}
@@ -109,7 +131,7 @@ class RedirectResponse extends \Symfony\Component\HttpFoundation\RedirectRespons
 	/**
 	 * Flash a container of errors to the session.
 	 *
-	 * @param  \Illuminate\Support\Contracts\MessageProviderInterface|array  $provider
+	 * @param  \Illuminate\Contracts\Support\MessageProvider|array  $provider
 	 * @param  string  $key
 	 * @return $this
 	 */
@@ -127,12 +149,12 @@ class RedirectResponse extends \Symfony\Component\HttpFoundation\RedirectRespons
 	/**
 	 * Parse the given errors into an appropriate value.
 	 *
-	 * @param  \Illuminate\Support\Contracts\MessageProviderInterface|array  $provider
+	 * @param  \Illuminate\Contracts\Support\MessageProvider|array  $provider
 	 * @return \Illuminate\Support\MessageBag
 	 */
 	protected function parseErrors($provider)
 	{
-		if ($provider instanceof MessageProviderInterface)
+		if ($provider instanceof MessageProvider)
 		{
 			return $provider->getMessageBag();
 		}
@@ -143,7 +165,7 @@ class RedirectResponse extends \Symfony\Component\HttpFoundation\RedirectRespons
 	/**
 	 * Get the request instance.
 	 *
-	 * @return  \Illuminate\Http\Request
+	 * @return \Illuminate\Http\Request
 	 */
 	public function getRequest()
 	{
@@ -198,7 +220,7 @@ class RedirectResponse extends \Symfony\Component\HttpFoundation\RedirectRespons
 			return $this->with(snake_case(substr($method, 4)), $parameters[0]);
 		}
 
-		throw new \BadMethodCallException("Method [$method] does not exist on Redirect.");
+		throw new BadMethodCallException("Method [$method] does not exist on Redirect.");
 	}
 
 }

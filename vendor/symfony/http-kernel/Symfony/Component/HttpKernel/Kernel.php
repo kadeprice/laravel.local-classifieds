@@ -60,11 +60,11 @@ abstract class Kernel implements KernelInterface, TerminableInterface
     protected $startTime;
     protected $loadClassCache;
 
-    const VERSION = '2.5.10';
-    const VERSION_ID = '20510';
+    const VERSION = '2.6.4';
+    const VERSION_ID = '20604';
     const MAJOR_VERSION = '2';
-    const MINOR_VERSION = '5';
-    const RELEASE_VERSION = '10';
+    const MINOR_VERSION = '6';
+    const RELEASE_VERSION = '4';
     const EXTRA_VERSION = '';
 
     /**
@@ -210,6 +210,8 @@ abstract class Kernel implements KernelInterface, TerminableInterface
      * {@inheritdoc}
      *
      * @api
+     *
+     * @deprecated Deprecated since version 2.6, to be removed in 3.0.
      */
     public function isClassInActiveBundle($class)
     {

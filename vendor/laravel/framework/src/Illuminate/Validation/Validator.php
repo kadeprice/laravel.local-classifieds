@@ -2,16 +2,21 @@
 
 use Closure;
 use DateTime;
+use Countable;
+use Exception;
 use DateTimeZone;
+use RuntimeException;
+use BadMethodCallException;
+use InvalidArgumentException;
 use Illuminate\Support\Fluent;
 use Illuminate\Support\MessageBag;
-use Illuminate\Container\Container;
+use Illuminate\Contracts\Container\Container;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Illuminate\Support\Contracts\MessageProviderInterface;
+use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 
-class Validator implements MessageProviderInterface {
+class Validator implements ValidatorContract {
 
 	/**
 	 * The Translator implementation.
@@ -26,6 +31,13 @@ class Validator implements MessageProviderInterface {
 	 * @var \Illuminate\Validation\PresenceVerifierInterface
 	 */
 	protected $presenceVerifier;
+
+	/**
+	 * The container instance.
+	 *
+	 * @var \Illuminate\Contracts\Container\Container
+	 */
+	protected $container;
 
 	/**
 	 * The failed validation rules.
@@ -61,6 +73,13 @@ class Validator implements MessageProviderInterface {
 	 * @var array
 	 */
 	protected $rules;
+
+	/**
+	 * All of the registered "after" callbacks.
+	 *
+	 * @var array
+	 */
+	protected $after = array();
 
 	/**
 	 * The array of custom error messages.
@@ -149,15 +168,21 @@ class Validator implements MessageProviderInterface {
 	/**
 	 * Parse the data and hydrate the files array.
 	 *
-	 * @param  array  $data
+	 * @param  array   $data
+	 * @param  string  $arrayKey
 	 * @return array
 	 */
-	protected function parseData(array $data)
+	protected function parseData(array $data, $arrayKey = null)
 	{
-		$this->files = array();
+		if (is_null($arrayKey))
+		{
+			$this->files = array();
+		}
 
 		foreach ($data as $key => $value)
 		{
+			$key = ($arrayKey) ? "$arrayKey.$key" : $key;
+
 			// If this value is an instance of the HttpFoundation File class we will
 			// remove it from the data array and add it to the files array, which
 			// we use to conveniently separate out these files from other data.
@@ -166,6 +191,10 @@ class Validator implements MessageProviderInterface {
 				$this->files[$key] = $value;
 
 				unset($data[$key]);
+			}
+			elseif (is_array($value))
+			{
+				$this->parseData($value, $key);
 			}
 		}
 
@@ -186,6 +215,22 @@ class Validator implements MessageProviderInterface {
 		}
 
 		return $rules;
+	}
+
+	/**
+	 * After an after validation callback.
+	 *
+	 * @param  callable|string  $callback
+	 * @return $this
+	 */
+	public function after($callback)
+	{
+		$this->after[] = function() use ($callback)
+		{
+			return call_user_func_array($callback, [$this]);
+		};
+
+		return $this;
 	}
 
 	/**
@@ -226,7 +271,7 @@ class Validator implements MessageProviderInterface {
 		{
 			if ($this->hasRule($attribute, 'Array')) return;
 
-			throw new \InvalidArgumentException('Attribute for each() must be an array.');
+			throw new InvalidArgumentException('Attribute for each() must be an array.');
 		}
 
 		foreach ($data as $dataKey => $dataValue)
@@ -272,6 +317,14 @@ class Validator implements MessageProviderInterface {
 			{
 				$this->validate($attribute, $rule);
 			}
+		}
+
+		// Here we will spin through all of the "after" hooks on this validator and
+		// fire them off. This gives the callbacks a chance to perform all kinds
+		// of other validation that needs to get wrapped up in this operation.
+		foreach ($this->after as $after)
+		{
+			call_user_func($after);
 		}
 
 		return count($this->messages->all()) === 0;
@@ -426,7 +479,7 @@ class Validator implements MessageProviderInterface {
 	protected function hasNotFailedPreviousRuleIfPresenceRule($rule, $attribute)
 	{
 		return in_array($rule, ['Unique', 'Exists'])
-						? ! $this->messages->has($attribute): true;
+						? ! $this->messages->has($attribute) : true;
 	}
 
 	/**
@@ -490,7 +543,7 @@ class Validator implements MessageProviderInterface {
 		{
 			return false;
 		}
-		elseif ((is_array($value) || $value instanceof \Countable) && count($value) < 1)
+		elseif ((is_array($value) || $value instanceof Countable) && count($value) < 1)
 		{
 			return false;
 		}
@@ -737,6 +790,18 @@ class Validator implements MessageProviderInterface {
 	}
 
 	/**
+	 * Validate that an attribute is an array.
+	 *
+	 * @param  string  $attribute
+	 * @param  mixed   $value
+	 * @return bool
+	 */
+	protected function validateArray($attribute, $value)
+	{
+		return is_array($value);
+	}
+
+	/**
 	 * Validate that an attribute is a boolean.
 	 *
 	 * @param  string  $attribute
@@ -751,15 +816,15 @@ class Validator implements MessageProviderInterface {
 	}
 
 	/**
-	 * Validate that an attribute is an array.
+	 * Validate that an attribute is an integer.
 	 *
 	 * @param  string  $attribute
 	 * @param  mixed   $value
 	 * @return bool
 	 */
-	protected function validateArray($attribute, $value)
+	protected function validateInteger($attribute, $value)
 	{
-		return is_array($value);
+		return filter_var($value, FILTER_VALIDATE_INT) !== false;
 	}
 
 	/**
@@ -775,15 +840,15 @@ class Validator implements MessageProviderInterface {
 	}
 
 	/**
-	 * Validate that an attribute is an integer.
+	 * Validate that an attribute is a string.
 	 *
 	 * @param  string  $attribute
 	 * @param  mixed   $value
 	 * @return bool
 	 */
-	protected function validateInteger($attribute, $value)
+	protected function validateString($attribute, $value)
 	{
-		return filter_var($value, FILTER_VALIDATE_INT) !== false;
+		return is_string($value);
 	}
 
 	/**
@@ -912,20 +977,7 @@ class Validator implements MessageProviderInterface {
 			return $value->getSize() / 1024;
 		}
 
-		return $this->getStringSize($value);
-	}
-
-	/**
-	 * Get the size of a string.
-	 *
-	 * @param  string  $value
-	 * @return int
-	 */
-	protected function getStringSize($value)
-	{
-		if (function_exists('mb_strlen')) return mb_strlen($value);
-
-		return strlen($value);
+		return mb_strlen($value);
 	}
 
 	/**
@@ -1152,7 +1204,7 @@ class Validator implements MessageProviderInterface {
 	{
 		$url = str_replace(array('http://', 'https://', 'ftp://'), '', strtolower($value));
 
-		return checkdnsrr($url);
+		return checkdnsrr($url, 'A');
 	}
 
 	/**
@@ -1164,7 +1216,7 @@ class Validator implements MessageProviderInterface {
 	 */
 	protected function validateImage($attribute, $value)
 	{
-		return $this->validateMimes($attribute, $value, array('jpeg', 'png', 'gif', 'bmp'));
+		return $this->validateMimes($attribute, $value, array('jpeg', 'png', 'gif', 'bmp', 'svg'));
 	}
 
 	/**
@@ -1398,9 +1450,9 @@ class Validator implements MessageProviderInterface {
 		{
 			return new DateTime($value);
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
-			return null;
+			return;
 		}
 	}
 
@@ -1417,7 +1469,7 @@ class Validator implements MessageProviderInterface {
 		{
 			new DateTimeZone($value);
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			return false;
 		}
@@ -2250,7 +2302,7 @@ class Validator implements MessageProviderInterface {
 	{
 		if ( ! isset($this->presenceVerifier))
 		{
-			throw new \RuntimeException("Presence verifier has not been set.");
+			throw new RuntimeException("Presence verifier has not been set.");
 		}
 
 		return $this->presenceVerifier;
@@ -2421,7 +2473,7 @@ class Validator implements MessageProviderInterface {
 	/**
 	 * Set the IoC container instance.
 	 *
-	 * @param  \Illuminate\Container\Container  $container
+	 * @param  \Illuminate\Contracts\Container\Container  $container
 	 * @return void
 	 */
 	public function setContainer(Container $container)
@@ -2517,7 +2569,7 @@ class Validator implements MessageProviderInterface {
 	{
 		if (count($parameters) < $count)
 		{
-			throw new \InvalidArgumentException("Validation rule $rule requires at least $count parameters.");
+			throw new InvalidArgumentException("Validation rule $rule requires at least $count parameters.");
 		}
 	}
 
@@ -2539,7 +2591,7 @@ class Validator implements MessageProviderInterface {
 			return $this->callExtension($rule, $parameters);
 		}
 
-		throw new \BadMethodCallException("Method [$method] does not exist.");
+		throw new BadMethodCallException("Method [$method] does not exist.");
 	}
 
 }

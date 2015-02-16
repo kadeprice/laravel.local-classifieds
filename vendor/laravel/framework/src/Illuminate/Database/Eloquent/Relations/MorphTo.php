@@ -36,7 +36,7 @@ class MorphTo extends BelongsTo {
 	protected $withTrashed = false;
 
 	/**
-	 * Create a new belongs to relationship instance.
+	 * Create a new morph to relationship instance.
 	 *
 	 * @param  \Illuminate\Database\Eloquent\Builder  $query
 	 * @param  \Illuminate\Database\Eloquent\Model  $parent
@@ -192,6 +192,16 @@ class MorphTo extends BelongsTo {
 	public function createModelByType($type)
 	{
 		return new $type;
+	}
+
+	/**
+	 * Get the foreign key "type" name.
+	 *
+	 * @return string
+	 */
+	public function getMorphType()
+	{
+		return $this->morphType;
 	}
 
 	/**

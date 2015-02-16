@@ -1,8 +1,9 @@
 <?php namespace Illuminate\Cache;
 
+use Illuminate\Contracts\Cache\Store;
 use Illuminate\Redis\Database as Redis;
 
-class RedisStore extends TaggableStore implements StoreInterface {
+class RedisStore extends TaggableStore implements Store {
 
 	/**
 	 * The Redis database connection.
@@ -113,11 +114,11 @@ class RedisStore extends TaggableStore implements StoreInterface {
 	 * Remove an item from the cache.
 	 *
 	 * @param  string  $key
-	 * @return void
+	 * @return bool
 	 */
 	public function forget($key)
 	{
-		$this->connection()->del($this->prefix.$key);
+		return (bool) $this->connection()->del($this->prefix.$key);
 	}
 
 	/**

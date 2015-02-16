@@ -1,6 +1,8 @@
 <?php namespace Illuminate\Cache;
 
-class ArrayStore extends TaggableStore implements StoreInterface {
+use Illuminate\Contracts\Cache\Store;
+
+class ArrayStore extends TaggableStore implements Store {
 
 	/**
 	 * The array of stored values.
@@ -78,11 +80,13 @@ class ArrayStore extends TaggableStore implements StoreInterface {
 	 * Remove an item from the cache.
 	 *
 	 * @param  string  $key
-	 * @return void
+	 * @return bool
 	 */
 	public function forget($key)
 	{
 		unset($this->storage[$key]);
+
+		return true;
 	}
 
 	/**

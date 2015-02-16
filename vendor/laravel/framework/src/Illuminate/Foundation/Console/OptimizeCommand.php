@@ -1,5 +1,6 @@
 <?php namespace Illuminate\Foundation\Console;
 
+use InvalidArgumentException;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Composer;
 use Illuminate\View\Engines\CompilerEngine;
@@ -85,7 +86,7 @@ class OptimizeCommand extends Command {
 	{
 		$this->registerClassPreloaderCommand();
 
-		$outputPath = $this->laravel['path.base'].'/bootstrap/compiled.php';
+		$outputPath = $this->laravel['path.storage'].'/framework/compiled.php';
 
 		$this->callSilent('compile', array(
 			'--config' => implode(',', $this->getClassFiles()),
@@ -105,7 +106,14 @@ class OptimizeCommand extends Command {
 
 		$core = require __DIR__.'/Optimize/config.php';
 
-		return array_merge($core, $this->laravel['config']['compile']);
+		$files = array_merge($core, $this->laravel['config']->get('compile.files', []));
+
+		foreach ($this->laravel['config']->get('compile.providers', []) as $provider)
+		{
+			$files = array_merge($files, forward_static_call([$provider, 'compiles']));
+		}
+
+		return $files;
 	}
 
 	/**
@@ -133,7 +141,7 @@ class OptimizeCommand extends Command {
 				{
 					$engine = $this->laravel['view']->getEngineFromPath($file);
 				}
-				catch (\InvalidArgumentException $e)
+				catch (InvalidArgumentException $e)
 				{
 					continue;
 				}

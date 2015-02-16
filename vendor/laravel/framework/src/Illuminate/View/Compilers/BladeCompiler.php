@@ -31,7 +31,14 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	);
 
 	/**
-	 * Array of opening and closing tags for escaped echos.
+	 * Array of opening and closing tags for raw echos.
+	 *
+	 * @var array
+	 */
+	protected $rawTags = array('{!!', '!!}');
+
+	/**
+	 * Array of opening and closing tags for regular echos.
 	 *
 	 * @var array
 	 */
@@ -43,6 +50,13 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	 * @var array
 	 */
 	protected $escapedTags = array('{{{', '}}}');
+
+	/**
+	 * The "regular" / legacy echo string format.
+	 *
+	 * @var string
+	 */
+	protected $echoFormat = 'e(%s)';
 
 	/**
 	 * Array of footer lines to be added to template.
@@ -190,14 +204,42 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	 */
 	protected function compileEchos($value)
 	{
-		$difference = strlen($this->contentTags[0]) - strlen($this->escapedTags[0]);
-
-		if ($difference > 0)
+		foreach ($this->getEchoMethods() as $method => $length)
 		{
-			return $this->compileEscapedEchos($this->compileRegularEchos($value));
+			$value = $this->$method($value);
 		}
 
-		return $this->compileRegularEchos($this->compileEscapedEchos($value));
+		return $value;
+	}
+
+	/**
+	 * Get the echo methdos in the proper order for compilation.
+	 *
+	 * @return array
+	 */
+	protected function getEchoMethods()
+	{
+		$methods = [
+			"compileRawEchos" => strlen(stripcslashes($this->rawTags[0])),
+			"compileEscapedEchos" => strlen(stripcslashes($this->escapedTags[0])),
+			"compileRegularEchos" => strlen(stripcslashes($this->contentTags[0])),
+		];
+
+		uksort($methods, function($method1, $method2) use ($methods)
+		{
+			// Ensure the longest tags are processed first
+			if ($methods[$method1] > $methods[$method2]) return -1;
+			if ($methods[$method1] < $methods[$method2]) return 1;
+
+			// Otherwise give preference to raw tags (assuming they've overridden)
+			if ($method1 === "compileRawEchos") return -1;
+			if ($method2 === "compileRawEchos") return 1;
+
+			if ($method1 === "compileEscapedEchos") return -1;
+			if ($method2 === "compileEscapedEchos") return 1;
+		});
+
+		return $methods;
 	}
 
 	/**
@@ -222,6 +264,26 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	}
 
 	/**
+	 * Compile the "raw" echo statements.
+	 *
+	 * @param  string  $value
+	 * @return string
+	 */
+	protected function compileRawEchos($value)
+	{
+		$pattern = sprintf('/(@)?%s\s*(.+?)\s*%s(\r?\n)?/s', $this->rawTags[0], $this->rawTags[1]);
+
+		$callback = function($matches)
+		{
+			$whitespace = empty($matches[3]) ? '' : $matches[3].$matches[3];
+
+			return $matches[1] ? substr($matches[0], 1) : '<?php echo '.$this->compileEchoDefaults($matches[2]).'; ?>'.$whitespace;
+		};
+
+		return preg_replace_callback($pattern, $callback, $value);
+	}
+
+	/**
 	 * Compile the "regular" echo statements.
 	 *
 	 * @param  string  $value
@@ -235,7 +297,9 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 		{
 			$whitespace = empty($matches[3]) ? '' : $matches[3].$matches[3];
 
-			return $matches[1] ? substr($matches[0], 1) : '<?php echo '.$this->compileEchoDefaults($matches[2]).'; ?>'.$whitespace;
+			$wrapped = sprintf($this->echoFormat, $this->compileEchoDefaults($matches[2]));
+
+			return $matches[1] ? substr($matches[0], 1) : '<?php echo '.$wrapped.'; ?>'.$whitespace;
 		};
 
 		return preg_replace_callback($pattern, $callback, $value);
@@ -665,6 +729,18 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 	}
 
 	/**
+	 * Sets the raw tags used for the compiler.
+	 *
+	 * @param  string  $openTag
+	 * @param  string  $closeTag
+	 * @return void
+	 */
+	public function setRawTags($openTag, $closeTag)
+	{
+		$this->rawTags = array(preg_quote($openTag), preg_quote($closeTag));
+	}
+
+	/**
 	 * Sets the content tags used for the compiler.
 	 *
 	 * @param  string  $openTag
@@ -722,6 +798,17 @@ class BladeCompiler extends Compiler implements CompilerInterface {
 		$tags = $escaped ? $this->escapedTags : $this->contentTags;
 
 		return array_map('stripcslashes', $tags);
+	}
+
+	/**
+	 * Set the echo format to be used by the compiler.
+	 *
+	 * @param  string  $format
+	 * @return void
+	 */
+	public function setEchoFormat($format)
+	{
+		$this->echoFormat = $format;
 	}
 
 }

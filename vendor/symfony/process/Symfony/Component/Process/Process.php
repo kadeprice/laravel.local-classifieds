@@ -16,12 +16,16 @@ use Symfony\Component\Process\Exception\LogicException;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\Exception\RuntimeException;
+use Symfony\Component\Process\Pipes\PipesInterface;
+use Symfony\Component\Process\Pipes\UnixPipes;
+use Symfony\Component\Process\Pipes\WindowsPipes;
 
 /**
  * Process is a thin wrapper around proc_* functions to easily
  * start independent PHP processes.
  *
  * @author Fabien Potencier <fabien@symfony.com>
+ * @author Romain Neutron <imprec@gmail.com>
  *
  * @api
  */
@@ -67,7 +71,7 @@ class Process
     private $pty;
 
     private $useFileHandles = false;
-    /** @var ProcessPipes */
+    /** @var PipesInterface */
     private $processPipes;
 
     private $latestSignal;
@@ -291,13 +295,10 @@ class Process
         }
         $this->status = self::STATUS_STARTED;
 
-        $this->processPipes->unblock();
-
         if ($this->tty) {
             return;
         }
 
-        $this->processPipes->write(false, $this->input);
         $this->updateStatus(false);
         $this->checkTimeout();
     }
@@ -355,7 +356,7 @@ class Process
 
         do {
             $this->checkTimeout();
-            $running = '\\' === DIRECTORY_SEPARATOR ? $this->isRunning() : $this->processPipes->hasOpenHandles();
+            $running = '\\' === DIRECTORY_SEPARATOR ? $this->isRunning() : $this->processPipes->areOpen();
             $close = '\\' !== DIRECTORY_SEPARATOR || !$running;
             $this->readPipes(true, $close);
         } while ($running);
@@ -1082,8 +1083,6 @@ class Process
     /**
      * Sets the contents of STDIN.
      *
-     * Deprecation: As of Symfony 2.5, this method only accepts scalar values.
-     *
      * @param string|null $stdin The new contents
      *
      * @return self The current Process instance
@@ -1260,8 +1259,12 @@ class Process
      */
     private function getDescriptors()
     {
-        $this->processPipes = new ProcessPipes($this->useFileHandles, $this->tty, $this->pty, $this->outputDisabled);
-        $descriptors = $this->processPipes->getDescriptors();
+        if ('\\' === DIRECTORY_SEPARATOR) {
+            $this->processPipes = WindowsPipes::create($this, $this->input);
+        } else {
+            $this->processPipes = UnixPipes::create($this, $this->input);
+        }
+        $descriptors = $this->processPipes->getDescriptors($this->outputDisabled);
 
         if (!$this->useFileHandles && $this->enhanceSigchildCompatibility && $this->isSigchildEnabled()) {
             // last exit code is output on the fourth pipe and caught to work around --enable-sigchild
@@ -1374,11 +1377,7 @@ class Process
      */
     private function readPipes($blocking, $close)
     {
-        if ($close) {
-            $result = $this->processPipes->readAndCloseHandles($blocking);
-        } else {
-            $result = $this->processPipes->read($blocking);
-        }
+        $result = $this->processPipes->readAndWrite($blocking, $close);
 
         $callback = $this->callback;
         foreach ($result as $type => $data) {

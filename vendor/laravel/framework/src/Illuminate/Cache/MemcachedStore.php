@@ -1,6 +1,8 @@
 <?php namespace Illuminate\Cache;
 
-class MemcachedStore extends TaggableStore implements StoreInterface {
+use Illuminate\Contracts\Cache\Store;
+
+class MemcachedStore extends TaggableStore implements Store {
 
 	/**
 	 * The Memcached instance.
@@ -98,11 +100,11 @@ class MemcachedStore extends TaggableStore implements StoreInterface {
 	 * Remove an item from the cache.
 	 *
 	 * @param  string  $key
-	 * @return void
+	 * @return bool
 	 */
 	public function forget($key)
 	{
-		$this->memcached->delete($this->prefix.$key);
+		return $this->memcached->delete($this->prefix.$key);
 	}
 
 	/**
