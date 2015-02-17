@@ -13,10 +13,13 @@ class Post extends Model {
         public function test(){ return "TEST"; }
         
 	// Don't forget to fill this array
-	protected $fillable = [];
+	protected $fillable = ['title','body','location','amount','user_id','category_id','active','aproved'];
         
         public function user(){
             return $this->belongsTo('\Classifieds\User');
         }
-
+        
+         public function category(){
+            return $this->belongsTo('\Classifieds\Categories');
+        }
 }

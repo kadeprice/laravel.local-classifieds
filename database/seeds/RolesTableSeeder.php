@@ -1,13 +1,13 @@
 <?php
 
-// Composer: "fzaninotto/faker": "v1.3.0"
-use Faker\Factory as Faker;
+use Illuminate\Database\Seeder;
+use Illuminate\Database\Eloquent\Model;
+use Classifieds\Role;
 
 class RolesTableSeeder extends Seeder {
 
 	public function run()
 	{
-		$faker = Faker::create();
                 Role::create(['role' => 'user']);
                 Role::create(['role' => 'admin']);
 		
