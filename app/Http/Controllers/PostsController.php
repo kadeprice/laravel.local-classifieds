@@ -2,8 +2,23 @@
 
 namespace Classifieds\Http\Controllers;
 use Classifieds\Post;
+use Classifieds\User;
+use Classifieds\Categories;
+use Illuminate\Support\Facades\Auth;
 
 class PostsController extends Controller {
+    
+        /**
+	 * Create a new controller instance.
+	 *
+	 * @return void
+	 */
+	public function __construct(Post $post)
+	{
+		$this->middleware('auth', ['except' => ['index','show','category']]);
+                $this->post = $post;
+	}
+        
 
 	/**
 	 * Display a listing of posts
@@ -12,7 +27,7 @@ class PostsController extends Controller {
 	 */
 	public function index()
 	{
-            $posts = Post::all();
+            $posts = Post::approvedPosts();
 
             return view('posts.index', compact('posts'));
 	}
@@ -24,7 +39,7 @@ class PostsController extends Controller {
 	 */
 	public function create()
 	{
-		return View::make('posts.create');
+		return view('posts.create');
 	}
 
 	/**
@@ -32,18 +47,18 @@ class PostsController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function store()
+	public function store(\Illuminate\Http\Request $request)
 	{
-		$validator = Validator::make($data = Input::all(), Post::$rules);
-
-		if ($validator->fails())
-		{
-			return Redirect::back()->withErrors($validator)->withInput();
-		}
-
-		Post::create($data);
-
-		return Redirect::route('posts.index');
+            $this->validate($request, $this->post->rules);
+            
+            $post = new Post($request->all());
+            $post->active = 1;
+            $post->category_id = 1;
+            Auth::user()->posts()->save($post);
+            
+            return redirect()->route('post.index');
+            
+            
 	}
 
 	/**
@@ -106,5 +121,17 @@ class PostsController extends Controller {
 
 		return Redirect::route('posts.index');
 	}
+        
+        /**
+         * Shows list of all posts with passed category_id
+         * 
+         * @param type $id
+         * 
+         */
+        public function category($key){
+            $category = Categories::whereKey($key)->first();
+            $posts = $category->posts()->whereApproved(true)->whereActive(true)->orderBy('id', 'desc')->get();
+            return view('posts.index', compact('posts','category'));
+        }
 
 }
