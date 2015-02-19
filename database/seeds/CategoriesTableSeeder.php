@@ -9,11 +9,11 @@ class CategoriesTableSeeder extends Seeder {
 	public function run()
 	{
 			
-                Categories::create(['category' => 'For Sell']);                
-                Categories::create(['category' => 'Event']);
-                Categories::create(['category' => 'Wanted']);
-                Categories::create(['category' => 'Job']);
-                Categories::create(['category' => 'Services']);
+                Categories::create(['category' => 'For Sell', 'key' => 'for-sell']);                
+                Categories::create(['category' => 'Event', 'key' => 'events']);
+                Categories::create(['category' => 'Wanted', 'key' => 'wanted']);
+                Categories::create(['category' => 'Jobs', 'key' => 'jobs']);
+                Categories::create(['category' => 'Services', 'key' => 'service']);
 		
 	}
 

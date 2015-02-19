@@ -1,5 +1,5 @@
 @extends('layouts.default') 
-@section('title', 'Create User')
+@section('title', 'Create Profile')
 @section('content')
 <div style='height:60px;'></div>
 <div class="container-fluid">
@@ -19,7 +19,7 @@
                                     @endif           
                                         <div class="form-group">
                                            {!! Form::label('fname', "First Name",["class"=>"text-muted"]) !!}
-                                           {!! Form::text('fname',null,["class"=>"form-control","placeholder"=>"Enter First Name"]) !!}
+                                           {!! Form::text('fname',null,["class"=>"form-control","placeholder"=>"Enter First Name", 'required' => 'required']) !!}
                                             {!! $errors->first('fname', '<span class=warning>:message</span>') !!}
                                         </div>             
                                         <div class="form-group">

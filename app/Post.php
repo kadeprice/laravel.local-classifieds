@@ -5,12 +5,14 @@ use Illuminate\Database\Eloquent\Model;
 class Post extends Model {
 
 	// Add your validation rules here
-	public static $rules = [
-		// 'title' => 'required'
-	];
         protected $table = 'posts';
 
-        public function test(){ return "TEST"; }
+        public $rules = [
+            'title' => 'required|min:3',
+            'amount' => 'required|numeric|min:2',
+            'body' => 'required|min:5'
+        ];
+        
         
 	// Don't forget to fill this array
 	protected $fillable = ['title','body','location','amount','user_id','category_id','active','aproved'];
@@ -21,5 +23,10 @@ class Post extends Model {
         
          public function category(){
             return $this->belongsTo('\Classifieds\Categories');
+        }
+        
+        public static function approvedPosts(){
+//            return "GET POSTS";
+            return self::whereActive(true)->whereApproved(true)->orderBy('id', 'desc')->get();
         }
 }

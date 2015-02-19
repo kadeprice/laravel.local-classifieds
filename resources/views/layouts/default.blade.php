@@ -12,6 +12,7 @@
     </div>
     @include("navigation/mainmenu")
 
+<div style='height:50px;'></div>
 @yield('content')  
 
 

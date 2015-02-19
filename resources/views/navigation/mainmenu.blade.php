@@ -10,17 +10,17 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li class="{{ Request::is( '/') ? 'active' : '' }}"><a href="/">Home</a></li>
-                    <li class="{{ Request::is( 'forsell') ? 'active' : '' }}"><a href="#services">For Sell</a></li>
-                    <li class="{{ Request::is( 'events') ? 'active' : '' }}"><a href="#features">Events</a></li>
-                    <li class="{{ Request::is( 'outsidelinks') ? 'active' : '' }}"><a href="#pricing">Outside Links</a></li>
-                    <li class="{{ Request::is( 'community') ? 'active' : '' }}"><a href="#clients">Community</a></li>
+                    <li class="{{ Request::is( 'forsell') ? 'active' : '' }}"><a href="{{ route('post.category',['for-sell']) }}">For Sell</a></li>
+                    <li class="{{ Request::is( 'events') ? 'active' : '' }}"><a href="{{ route('post.category',['events']) }}">Events</a></li>
+                    <li class="{{ Request::is( 'outsidelinks') ? 'active' : '' }}"><a href="{{ route('post.category',['wanted']) }}">Outside Links</a></li>
+                    <li class="{{ Request::is( 'community') ? 'active' : '' }}"><a href="{{ route('post.category',['service']) }}">Community</a></li>
                     @if (Auth::guest())
                         <li class="{{ Request::is( 'users/create') ? 'active' : '' }}"><a href="{{ url('users/create') }}">Create Profile</a></li>
                     @endif
 
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    <li class=""><a href="{{ route('post.create') }}">Post</a></li>
+                    <li class="{{ Request::is( 'post/create') ? 'active' : '' }}"><a href="{{ route('post.create') }}">Post</a></li>
                     
                     <li class="{{ Request::is( 'auth/login') ? 'active' : '' }}">
                         @if (Auth::guest())

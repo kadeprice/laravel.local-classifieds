@@ -26,3 +26,9 @@ Route::controllers([
 Route::resource('users', 'UsersController');
 
 Route::resource('post', 'PostsController');
+
+Route::get('post/category/{name}', ['as' => 'post.category', 'uses' => 'PostsController@category']);
+
+//Route::get('category/{id}', 'PostsController@category');
+//
+//Route::get('forsell', 'PostsController@category{1}');

@@ -13,8 +13,8 @@ class Categories extends Model {
 	// Don't forget to fill this array
 	protected $fillable = ['category'];
         
-        public function post(){
-            return $this->belongsTo('\Classifieds\Post');
+        public function posts(){
+            return $this->hasMany('\Classifieds\Post', "category_id");
         }
 
 }
