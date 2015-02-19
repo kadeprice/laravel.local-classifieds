@@ -18,6 +18,8 @@ class UsersController extends Controller {
 	 */
     
         public function __construct(User $user) {
+            $this->middleware('auth', ['except' => ['create','store']]);
+            $this->middleware('role', ['only' => ['index']]);
             $this->user = $user;
         }
 	public function index()
@@ -65,11 +67,11 @@ class UsersController extends Controller {
 //                        ->subject('Welcome to CTI.');
 //            });
 //            
-//            if(Auth::attempt(Input::only('email','password'))){
-//                return Redirect::intended("Dashboard")->with('notification',"Thank you, You have successfully registered.");
-//            }
+            if(\Illuminate\Support\Facades\Auth::attempt($request->only('email','password'))){
+                return redirect("post")->with('notification',"Thank you, You have successfully registered.");
+            }
 //            return Redirect::back()->withNotification("Thank you, You have successfully registered.");
-                return redirect('users')->withNotification("Thank you, You have successfully registered.");
+//                return redirect('users')->withNotification("Thank you, You have successfully registered.");
         
 	}
 
@@ -120,5 +122,12 @@ class UsersController extends Controller {
 	{
 		//
 	}
+        
+        public function posts($id){
+            $user = User::find($id);
+            $posts = $user->posts;
+
+            return view('posts.index', compact('posts'));
+        }
 
 }

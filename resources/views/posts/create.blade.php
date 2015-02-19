@@ -1,12 +1,13 @@
 @extends('layouts.default') 
 @section('title', 'Create Post')
 @section('content')
+
 <div style='height:60px;'></div>
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-md-8 col-md-offset-2">
 			<div class="panel panel-default">
-				<div class="panel-heading">Create Post</div>
+				<div class="panel-heading h2">Create {{ $category->category }} Post</div>
 				<div class="panel-body">
 			
                                     <br/>
@@ -37,7 +38,16 @@
                                            {!! Form::textarea('body',null,["class"=>"form-control","placeholder"=>"Enter Post Details", 'required' => 'required']) !!}
                                             {!! $errors->first('body', '<span class=warning>:message</span>') !!}
                                         </div>
+                                        @if(isset($post))
+                                        
+                                        <div class="form-group">	
+                                           {!! Form::label('approved', "Approved",["class"=>"text-muted"]) !!}
+                                           {!! Form::checkbox('approved',"true",$post->approved) !!}
+                                            
+                                        </div>
+                                        @endif
                                         <div style="position:relative; margin-top: 100px;">
+                                            {!! Form::hidden('category_id',$category->id) !!}
                                            {!! Form::submit("Submit Post",array("class"=>"btn btn-primary")) !!}
                                         </div>
 

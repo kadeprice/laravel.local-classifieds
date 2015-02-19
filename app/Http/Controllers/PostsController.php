@@ -37,9 +37,12 @@ class PostsController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function create()
+	public function create(\Illuminate\Http\Request $request)
 	{
-		return view('posts.create');
+            $key = $request->only('category');
+            if($key == "") $key = "for-sell";
+            $category = Categories::whereKey($key)->first();
+            return view('posts.create', compact("category"));
 	}
 
 	/**
@@ -53,7 +56,6 @@ class PostsController extends Controller {
             
             $post = new Post($request->all());
             $post->active = 1;
-            $post->category_id = 1;
             Auth::user()->posts()->save($post);
             
             return redirect()->route('post.index');
@@ -83,8 +85,13 @@ class PostsController extends Controller {
 	public function edit($id)
 	{
 		$post = Post::find($id);
-
-		return View::make('posts.edit', compact('post'));
+                
+                //Verify that they are the owner
+                
+                if(!$post->user_id == Auth::id()) return response('Unauthorized.', 401);
+//                return view('posts.create', compact('post'));
+                $category = Categories::find($post->category_id);
+                return view('posts.create', compact(['post',"category"]));
 	}
 
 	/**
@@ -93,20 +100,17 @@ class PostsController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function update($id)
+	public function update(\Illuminate\Http\Request $request, $id)
 	{
-		$post = Post::findOrFail($id);
-
-		$validator = Validator::make($data = Input::all(), Post::$rules);
-
-		if ($validator->fails())
-		{
-			return Redirect::back()->withErrors($validator)->withInput();
-		}
-
-		$post->update($data);
-
-		return Redirect::route('posts.index');
+            $this->validate($request, $this->post->rules);
+            $post = Post::findOrFail($id);
+            $input = $request->all();
+            
+            if(isset($input['approved'])) $post->approved = true;
+            else $post->approved = false;
+            
+            $post->update($input);
+            return \Illuminate\Support\Facades\Redirect::route('post.show',$id);
 	}
 
 	/**
