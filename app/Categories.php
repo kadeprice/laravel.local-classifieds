@@ -12,9 +12,11 @@ class Categories extends Model {
         
 	// Don't forget to fill this array
 	protected $fillable = ['category'];
-        
+
+
         public function posts(){
             return $this->hasMany('\Classifieds\Post', "category_id");
         }
+        
 
 }

@@ -16,11 +16,22 @@
                     <li class="{{ Request::is( 'community') ? 'active' : '' }}"><a href="{{ route('post.category',['service']) }}">Community</a></li>
                     @if (Auth::guest())
                         <li class="{{ Request::is( 'users/create') ? 'active' : '' }}"><a href="{{ url('users/create') }}">Create Profile</a></li>
+                    @else
+                        <li class="{{ Request::is( 'users/create') ? 'active' : '' }}"><a href="{{ route('users.posts', Auth::id()) }}">My Posts</a></li>                        
                     @endif
 
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    <li class="{{ Request::is( 'post/create') ? 'active' : '' }}"><a href="{{ route('post.create') }}">Post</a></li>
+                    <li class="{{ Request::is( 'post/create') ? 'active' : '' }} dropdown">
+                        
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false"><span class="caret"></span> Post</a>
+                        <ul class="dropdown-menu" role='menu'>
+                            @foreach(Classifieds\Categories::all() as $category)
+                                <li><a href="{{ route('post.create', "category=$category->key") }}">{{ $category->category }}</a></li>
+                            @endforeach
+                        </ul>
+                    
+                    </li>
                     
                     <li class="{{ Request::is( 'auth/login') ? 'active' : '' }}">
                         @if (Auth::guest())

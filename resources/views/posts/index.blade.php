@@ -17,17 +17,15 @@
                         <ul class="media-list">
                         @foreach($posts as $post)
                             <a href="{{ route('post.show',$post->id) }}">
-                                <li class="media">
+                                <li class="media @if(!$post->approved) text-warning @endif">
                                     <div class="row">
                                         <div class="media-heading">
                                             <div class="col-md-6"><strong>{{ $post->title }} - ${{ $post->amount }}</strong></div>
                                             <div class="col-md-4"> {{ $post->location }}</div>
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="media-body">
-                                            {{ $post->body }}
-                                        </div>
+                                    <div class="media-body">
+                                        {{ $post->body }}
                                     </div>
                                 </li>
                             </a>
