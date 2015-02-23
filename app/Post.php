@@ -29,4 +29,15 @@ class Post extends Model {
 //            return "GET POSTS";
             return self::whereActive(true)->whereApproved(true)->orderBy('id', 'desc')->get();
         }
+        
+        public static function approve($id) {
+            $post = Post::find($id);
+            
+            //make sure they own it
+            if(\Illuminate\Support\Facades\Auth::id() != $post->user_id) return false;
+            
+            $post->approved = true;
+            $post->save();
+            return true;
+        }
 }

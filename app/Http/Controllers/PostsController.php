@@ -137,5 +137,10 @@ class PostsController extends Controller {
             $posts = $category->posts()->whereApproved(true)->whereActive(true)->orderBy('id', 'desc')->get();
             return view('posts.index', compact('posts','category'));
         }
+        
+        public function approve($id){
+            if( Post::approve($id) )return \Illuminate\Support\Facades\Redirect::back();
+            else return response('Unauthorized.', 401); 
+        }
 
 }

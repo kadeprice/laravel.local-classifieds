@@ -1,5 +1,5 @@
 @extends('layouts.default') 
-@section('title', 'Create Post')
+@section('title',  $post->title )
 @section('content')
 
 <div class="container-fluid ">

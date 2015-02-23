@@ -26,7 +26,11 @@ Route::controllers([
 Route::resource('users', 'UsersController');
 Route::get('users/post/{id}', ['as' => 'users.posts', 'uses' => 'UsersController@posts']);
 
-Route::resource('post', 'PostsController');
+/* Post Routes */
 
-Route::get('post/category/{name}', ['as' => 'post.category', 'uses' => 'PostsController@category']);
+Route::resource('post', 'PostsController');
+Route::get('post/category/{key}', ['as' => 'post.category', 'uses' => 'PostsController@category']);
+Route::get('post/{id}/approve', ['as' => 'post.approve', 'uses' => 'PostsController@approve']);
+
+/* End Post routes */
 
