@@ -15,7 +15,7 @@
                                        {!! Form::model($post, ['route' => array('post.update', $post->id), 'method' => 'patch', 'files'=>true]) !!}
 
                                     @else
-                                        {!! Form::open(['route' => 'post.store',]) !!}
+                                        {!! Form::open(['route' => 'post.store', 'files' => true]) !!}
 
                                     @endif           
                                         <div class="form-group">
@@ -38,6 +38,18 @@
                                            {!! Form::textarea('body',null,["class"=>"form-control","placeholder"=>"Enter Post Details", 'required' => 'required']) !!}
                                             {!! $errors->first('body', '<span class=warning>:message</span>') !!}
                                         </div>
+                                    
+                                        <div class="form-group">	
+                                           {!! Form::label('file1', "Picture",["class"=>"text-muted"]) !!}
+                                           {!! Form::file('file1') !!}
+                                        </div>
+                                    
+                                    
+                                        <div class="form-group">	
+                                           {!! Form::label('file2', "Picture",["class"=>"text-muted"]) !!}
+                                           {!! Form::file('file2') !!}
+                                            
+                                        </div>
                                         @if(isset($post))
                                         
                                         <div class="form-group">	
@@ -45,6 +57,8 @@
                                            {!! Form::checkbox('approved',"true",$post->approved) !!}
                                             
                                         </div>
+                                        
+                                        
                                         @endif
                                         <div style="position:relative; margin-top: 100px;">
                                             {!! Form::hidden('category_id',$category->id) !!}

@@ -54,9 +54,21 @@ class PostsController extends Controller {
 	{
             $this->validate($request, $this->post->rules);
             
+//            if($request->hasFile('file1')){
+//                foreach ($request->file() as $file)
+//                {
+//                    echo $file->getClientOriginalName()."<br/>";
+//                }
+//            }
+//            return "AWESOME";
+           
             $post = new Post($request->all());
             $post->active = 1;
             Auth::user()->posts()->save($post);
+            if($request->hasFile('file1')){
+                $this->post->uploadImage($request->file(),$post->id); 
+            } 
+            
             
             return redirect()->route('post.index');
             

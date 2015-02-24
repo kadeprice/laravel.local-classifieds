@@ -17,12 +17,17 @@ class Post extends Model {
 	// Don't forget to fill this array
 	protected $fillable = ['title','body','location','amount','user_id','category_id','active','aproved'];
         
+        // Relationships
         public function user(){
             return $this->belongsTo('\Classifieds\User');
         }
         
-         public function category(){
+        public function category(){
             return $this->belongsTo('\Classifieds\Categories');
+        }
+        
+        public function images(){
+            return $this->hasMany('\Classifieds\Image');
         }
         
         public static function approvedPosts(){
@@ -39,5 +44,30 @@ class Post extends Model {
             $post->approved = true;
             $post->save();
             return true;
+        }
+        
+        /**
+         * Upload an image
+         * @param type $file
+         * @return string
+         */
+        public function uploadImage($files,$id){
+            foreach ($files as $file)
+            {
+              
+                $imageUrl = time()."-".str_replace(" ","_",$file->getClientOriginalName());
+                $image = \Intervention\Image\Facades\Image::make($file->getRealPath());
+                $image->resize(300, null, function ($constraint){
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                })->save(public_path()."/images/posts/".$imageUrl);
+                
+//                $imageTable = new Image();
+//                $imageTable->url = $imageUrl;
+//                $imageTable->post_id = $id;
+//                $imageTable->save();
+            }
+                return true;
+            
         }
 }
