@@ -1,5 +1,5 @@
 @extends('layouts.default') 
-@section('title', 'Create Post')
+@section('title',  $post->title )
 @section('content')
 
 <div class="container-fluid ">
@@ -17,6 +17,8 @@
                         <p>
                             {{ $post->body }}
                         </p>
+                        <hr/>
+                        {!! Classifieds\Image::getImages($post->id) !!}
                                             
                     </div>
                 </div>

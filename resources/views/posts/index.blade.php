@@ -1,5 +1,5 @@
 @extends('layouts.default') 
-@section('title', 'Create Post')
+@section('title', 'Posts')
 @section('content')
 
 <div class="container-fluid ">
@@ -16,20 +16,27 @@
                     <div class="panel-body">
                         <ul class="media-list">
                         @foreach($posts as $post)
-                            <a href="{{ route('post.show',$post->id) }}">
-                                <li class="media @if(!$post->approved) text-warning @endif">
-                                    <div class="row">
-                                        <div class="media-heading">
+                            <li class="media @if(!$post->approved) text-warning @endif">
+                                <div class="row">
+                                    <div class="media-heading">
+                                        <a href="{{ route('post.show',$post->id) }}">
                                             <div class="col-md-6"><strong>{{ $post->title }} - ${{ $post->amount }}</strong></div>
-                                            <div class="col-md-4"> {{ $post->location }}</div>
+                                            <div class="col-md-2"> {{ $post->location }}</div>
+
+                                        </a>
+                                        @if(\Illuminate\Support\Facades\Auth::id() == $post->user_id) 
+                                        <div class="col-md-2">
+                                            @if(!$post->approved) {!! link_to_route('post.approve', '{approve}', $post->id) !!} @endif
+                                            {!! link_to_route('post.edit', '{edit}', $post->id) !!}
                                         </div>
+                                        @endif
                                     </div>
-                                    <div class="media-body">
-                                        {{ $post->body }}
-                                    </div>
-                                </li>
-                            </a>
-                                <hr/>
+                                </div>
+                                <div class="media-body">
+                                    {{ $post->body }}
+                                </div>
+                            </li>
+                            <hr/>
                         @endforeach
                         </ul>
                     </div>

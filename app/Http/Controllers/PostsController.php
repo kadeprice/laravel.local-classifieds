@@ -54,9 +54,21 @@ class PostsController extends Controller {
 	{
             $this->validate($request, $this->post->rules);
             
+//            if($request->hasFile('file1')){
+//                foreach ($request->file() as $file)
+//                {
+//                    echo $file->getClientOriginalName()."<br/>";
+//                }
+//            }
+//            return "AWESOME";
+           
             $post = new Post($request->all());
             $post->active = 1;
             Auth::user()->posts()->save($post);
+            if($request->hasFile('file1')){
+                $this->post->uploadImage($request->file(),$post->id); 
+            } 
+            
             
             return redirect()->route('post.index');
             
@@ -110,6 +122,9 @@ class PostsController extends Controller {
             else $post->approved = false;
             
             $post->update($input);
+            if($request->hasFile('file1')){
+                $this->post->uploadImage($request->file(),$post->id); 
+            } 
             return \Illuminate\Support\Facades\Redirect::route('post.show',$id);
 	}
 
@@ -136,6 +151,27 @@ class PostsController extends Controller {
             $category = Categories::whereKey($key)->first();
             $posts = $category->posts()->whereApproved(true)->whereActive(true)->orderBy('id', 'desc')->get();
             return view('posts.index', compact('posts','category'));
+        }
+        
+        public function approve($id){
+            if( Post::approve($id) )return \Illuminate\Support\Facades\Redirect::back();
+            else return response('Unauthorized.', 401); 
+        }
+        
+        /**
+         * Remove the image from the post and delete it in the file.
+         */
+        public function delete_image(\Illuminate\Http\Request $request){
+            $id = $request->only('id');
+            $image = \Classifieds\Image::find($id['id']);
+            
+//            return $image;
+            unlink(public_path(). "/images/posts/$image->url");
+//            $file = new \League\Flysystem();
+//            $file->delete();
+            
+            $image->delete();
+            return "true";
         }
 
 }
