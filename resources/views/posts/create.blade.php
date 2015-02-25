@@ -50,14 +50,18 @@
                                            {!! Form::file('file2') !!}
                                             
                                         </div>
+                                    
                                         @if(isset($post))
-                                        
-                                        <div class="form-group">	
-                                           {!! Form::label('approved', "Approved",["class"=>"text-muted"]) !!}
-                                           {!! Form::checkbox('approved',"true",$post->approved) !!}
-                                            
-                                        </div>
-                                        
+                                            <div class="form-group">
+                                                {!! Classifieds\Image::getImages($post->id, 'edit') !!}
+                                            </div>
+
+                                            <div class="form-group">	
+                                               {!! Form::label('approved', "Approved",["class"=>"text-muted"]) !!}
+                                               {!! Form::checkbox('approved',"true",$post->approved) !!}
+
+                                            </div>
+
                                         
                                         @endif
                                         <div style="position:relative; margin-top: 100px;">
@@ -72,4 +76,20 @@
                 </div>
         </div>
 </div>
+@stop
+
+@section('footer')
+<script>
+$(document).ready(function(){
+    $(".delete_image").click(function(){
+        var ID = this.id;
+        if(confirm("Are you sure you want to delete this image?")){
+            $.get("{{ URL::to('test') }}",{id:ID},function(data){
+               if(data === "true") window.location.reload(); 
+            });
+        }
+        return false;
+    });
+});
+</script>
 @stop

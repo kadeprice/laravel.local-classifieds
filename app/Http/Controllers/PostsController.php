@@ -122,6 +122,9 @@ class PostsController extends Controller {
             else $post->approved = false;
             
             $post->update($input);
+            if($request->hasFile('file1')){
+                $this->post->uploadImage($request->file(),$post->id); 
+            } 
             return \Illuminate\Support\Facades\Redirect::route('post.show',$id);
 	}
 
@@ -153,6 +156,22 @@ class PostsController extends Controller {
         public function approve($id){
             if( Post::approve($id) )return \Illuminate\Support\Facades\Redirect::back();
             else return response('Unauthorized.', 401); 
+        }
+        
+        /**
+         * Remove the image from the post and delete it in the file.
+         */
+        public function delete_image(\Illuminate\Http\Request $request){
+            $id = $request->only('id');
+            $image = \Classifieds\Image::find($id['id']);
+            
+//            return $image;
+            unlink(public_path(). "/images/posts/$image->url");
+//            $file = new \League\Flysystem();
+//            $file->delete();
+            
+            $image->delete();
+            return "true";
         }
 
 }

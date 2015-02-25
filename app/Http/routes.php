@@ -34,3 +34,5 @@ Route::get('post/{id}/approve', ['as' => 'post.approve', 'uses' => 'PostsControl
 
 /* End Post routes */
 
+Route::get('test','PostsController@delete_image');
+

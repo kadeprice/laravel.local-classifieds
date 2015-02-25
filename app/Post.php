@@ -62,10 +62,10 @@ class Post extends Model {
                     $constraint->upsize();
                 })->save(public_path()."/images/posts/".$imageUrl);
                 
-//                $imageTable = new Image();
-//                $imageTable->url = $imageUrl;
-//                $imageTable->post_id = $id;
-//                $imageTable->save();
+                $imageTable = new Image();
+                $imageTable->url = $imageUrl;
+                $imageTable->post_id = $id;
+                $imageTable->save();
             }
                 return true;
             

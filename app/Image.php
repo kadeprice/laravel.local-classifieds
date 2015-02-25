@@ -9,25 +9,29 @@ class Image extends Model {
     public function post(){
         $this->belongsTo('\Classifieds\Post');
     }
-
-    static function getRoles(){
-        $roles=Role::all();
-        return $roles;
-        $role=[];
-        foreach($roles as $r){
-            $role[$r->id]=$r->role;
+    
+    /**
+     * Gets all the images and returns HTML formatted text.
+     * @return type string
+     */
+    static function getImages($post_id, $type=null){
+        $post = Post::find($post_id);
+        $html = "<div class='container-fluid'><div class='row'>";
+        $i=0;
+        foreach($post->images as $image){
+            $i++;
+            if(($i % 4) == 0){
+                $html .="</div>"; //Close row
+                $html .="<div class='row'><br/>"; //New Row
+                $i=0;
+            }
+            if($type == 'edit') $edit_html = "<a href='#'><div id='$image->id' class='delete_image'> {delete} </div></a>";
+            else $edit_html = "";
+            $html .= "<div class='col-md-4'>$edit_html<img src='". \Illuminate\Support\Facades\URL::to('images/posts/'.$image->url) ."' /> </div>";
         }
-        return $role;
+        $html .="</div></div>"; //close row and container
+        return $html;
     }
 
-    static function getAssignedRoles($id){
-        $user = User::withTrashed()->find($id);
-        $service=array();
-
-        foreach($user->Roles as $r){
-            $service[]=$r->id;
-        }
-        return $service;
-    }
 
 }

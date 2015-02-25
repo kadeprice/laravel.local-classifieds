@@ -17,6 +17,8 @@
                         <p>
                             {{ $post->body }}
                         </p>
+                        <hr/>
+                        {!! Classifieds\Image::getImages($post->id) !!}
                                             
                     </div>
                 </div>
