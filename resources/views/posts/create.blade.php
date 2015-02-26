@@ -84,7 +84,7 @@ $(document).ready(function(){
     $(".delete_image").click(function(){
         var ID = this.id;
         if(confirm("Are you sure you want to delete this image?")){
-            $.get("{{ URL::to('test') }}",{id:ID},function(data){
+            $.get("{{ URL::to('delete-image') }}",{id:ID},function(data){
                if(data === "true") window.location.reload(); 
             });
         }

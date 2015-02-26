@@ -70,6 +70,7 @@ class PostsController extends Controller {
             } 
             
             
+            flash("Your post has been created.");
             return redirect()->route('post.index');
             
             
@@ -125,7 +126,8 @@ class PostsController extends Controller {
             if($request->hasFile('file1')){
                 $this->post->uploadImage($request->file(),$post->id); 
             } 
-            return \Illuminate\Support\Facades\Redirect::route('post.show',$id);
+            flash("Your post has been updated.");
+            return \Redirect::route('post.show',$id);
 	}
 
 	/**
@@ -137,7 +139,8 @@ class PostsController extends Controller {
 	public function destroy($id)
 	{
 		Post::destroy($id);
-
+                
+                flash()->warning("Your post has been deleted.");
 		return Redirect::route('posts.index');
 	}
         
@@ -154,8 +157,10 @@ class PostsController extends Controller {
         }
         
         public function approve($id){
-            if( Post::approve($id) )return \Illuminate\Support\Facades\Redirect::back();
-            else return response('Unauthorized.', 401); 
+            if( Post::approve($id) ){                
+                flash("Your post has been Approved.");
+                return \Redirect::back();
+            }else return response('Unauthorized.', 401); 
         }
         
         /**

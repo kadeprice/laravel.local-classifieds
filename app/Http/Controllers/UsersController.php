@@ -68,10 +68,9 @@ class UsersController extends Controller {
 //            });
 //            
             if(\Illuminate\Support\Facades\Auth::attempt($request->only('email','password'))){
-                return redirect("post")->with('notification',"Thank you, You have successfully registered.");
+                flash("Thank you, You have successfully registered.");
+                return redirect("post");
             }
-//            return Redirect::back()->withNotification("Thank you, You have successfully registered.");
-//                return redirect('users')->withNotification("Thank you, You have successfully registered.");
         
 	}
 
