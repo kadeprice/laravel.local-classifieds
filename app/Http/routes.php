@@ -34,5 +34,10 @@ Route::get('post/{id}/approve', ['as' => 'post.approve', 'uses' => 'PostsControl
 
 /* End Post routes */
 
-Route::get('test','PostsController@delete_image');
+Route::get('delete-image','PostsController@delete_image');
+
+Route::get('flash',function(){
+    flash()->overlay("This is a test message",'Ohhh a Flash.'); 
+    return view('hello');
+});
 

@@ -146,6 +146,8 @@ return [
 		'Classifieds\Providers\ConfigServiceProvider',
 		'Classifieds\Providers\EventServiceProvider',
 		'Classifieds\Providers\RouteServiceProvider',
+                'Laracasts\Flash\FlashServiceProvider',
+                "Laracasts\Generators\GeneratorsServiceProvider",
 
 	],
 
@@ -197,6 +199,7 @@ return [
                 'Form'      => 'Illuminate\Html\FormFacade',
                 'Html'      => 'Illuminate\Html\HtmlFacade',
                 'Image' => 'Intervention\Image\Facades\Image',
+                'Flash' => 'Laracasts\Flash\Flash',
 
 	],
 
