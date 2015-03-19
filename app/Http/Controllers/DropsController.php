@@ -92,7 +92,7 @@ class DropsController extends Controller {
                        'error' => false,
                         'username' => $id,
                         'html' => $html
-                    ],404);
+                    ],200);
                     
 	}
 
