@@ -10,9 +10,9 @@
         
         <!-- Latest compiled and minified CSS -->
         <!-- Optional theme -->
-        <link rel="stylesheet" type="text/css" href="{{ URL::to('css/style.css') }}" />
-        <link rel="stylesheet" type="text/css" href="{{ URL::to('bootstrap/css/bootstrap.css') }}" />
-        <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" />
+        {!! Html::style('css/style.css') !!}
+        {!! Html::style('bootstrap/css/bootstrap.css') !!}
+        {!! Html::style('//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css') !!}
       
        
 </head>
