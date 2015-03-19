@@ -71,11 +71,27 @@ class DropsController extends Controller {
 	{
 		//
             $drops = Drop::whereUsername($id)->get();
-//            $drops = Drop::all();
+
+            $html = "<table class='table table-condensed'>
+                        <thead class='bg-info'>
+                            <tr>
+                                <th>Username</th>
+                                <th>Date</th>
+                                <th>Desc</th>
+                            </tr>
+                        </thead>";
+            foreach($drops as $drop){
+                $html .="<tr>
+                            <td>$drop[username]</td>
+                            <td>$drop[drop_date]</td>
+                            <td>$drop[description]</td>
+                        </tr>";
+            }
+            $html .= "</table>";
             return response()->json([
                        'error' => false,
                         'username' => $id,
-                        'date' => $drops->toArray()
+                        'html' => $html
                     ],200);
                     
 	}
