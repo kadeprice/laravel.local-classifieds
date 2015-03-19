@@ -32,12 +32,11 @@ Route::resource('post', 'PostsController');
 Route::get('post/category/{key}', ['as' => 'post.category', 'uses' => 'PostsController@category']);
 Route::get('post/{id}/approve', ['as' => 'post.approve', 'uses' => 'PostsController@approve']);
 
+Route::get('delete-image','PostsController@delete_image');
 /* End Post routes */
 
-Route::get('delete-image','PostsController@delete_image');
-
-Route::get('flash',function(){
-    flash()->overlay("This is a test message",'Ohhh a Flash.'); 
-    return view('hello');
+Route::group(['prefix' => 'api'],function(){
+   
+    Route::resource('drops', 'DropsController');
 });
 

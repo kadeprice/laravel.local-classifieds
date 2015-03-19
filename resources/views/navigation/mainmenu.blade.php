@@ -10,7 +10,7 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li class="{{ Request::is( '/') ? 'active' : '' }}"><a href="/">Home</a></li>
-                    <li class="{{ Request::is( 'forsell') ? 'active' : '' }}"><a href="{{ route('post.category',['for-sell']) }}">For Sell</a></li>
+                    <li class="{{ Request::is( 'post/category/for-sell') ? 'active' : '' }}"><a href="{{ route('post.category',['for-sell']) }}">For Sell</a></li>
                     <li class="{{ Request::is( 'events') ? 'active' : '' }}"><a href="{{ route('post.category',['events']) }}">Events</a></li>
                     <li class="{{ Request::is( 'outsidelinks') ? 'active' : '' }}"><a href="{{ route('post.category',['wanted']) }}">Outside Links</a></li>
                     <li class="{{ Request::is( 'community') ? 'active' : '' }}"><a href="{{ route('post.category',['service']) }}">Community</a></li>
