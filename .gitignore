@@ -3,3 +3,4 @@
 .env
 /.idea/
 /public/images/posts
+/nbproject
